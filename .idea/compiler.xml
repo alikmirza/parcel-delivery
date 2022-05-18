@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="com-ms-parcel" target="11" />
+      <module name="ms-notification_main" target="11" />
+      <module name="ms-notification_test" target="11" />
+      <module name="ms-order.main" target="11" />
+      <module name="ms-order.test" target="11" />
+      <module name="ms-order_main" target="11" />
+      <module name="ms-order_test" target="11" />
+      <module name="ms-parcel" target="11" />
+      <module name="ms-parcel.main" target="11" />
+      <module name="ms-parcel.test" target="11" />
+      <module name="ms-parcel_main" target="11" />
+      <module name="ms-parcel_test" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ms-courier" options="-parameters" />
+    </option>
+  </component>
+</project>

@@ -1,0 +1,108 @@
+version: '3.3'
+services:
+  authentication-postgres:
+    container_name: authentication-postgres
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: zeropass
+
+  courier-postgres:
+    container_name: courier-postgres
+    image: postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: zeropass
+
+  delivery-postgres:
+    container_name: delivery-postgres
+    image: postgres
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_PASSWORD: zeropass
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  api-gateway:
+    container_name: api-gateway
+    image: api-gateway:0.0.1
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    build:
+      context: api-gateway
+      dockerfile: Dockerfile
+    depends_on:
+      - ms-authentication
+      - ms-courier
+      - ms-delivery
+    environment:
+      MS-AUTHENTICATION-URL: http://ms-authentication:8081
+      MS-COURIER-URL: http://ms-courier:8082
+      MS-DELIVERY-URL: http://ms-delivery:8083
+
+  ms-authentication:
+    container_name: ms-authentication
+    image: authentication:0.0.1
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    build:
+      context: ms-authentication
+      dockerfile: Dockerfile
+    depends_on:
+      - authentication-postgres
+    environment:
+      PG_PASSWORD: zeropass
+  #    DATASOURCE_URL: jdbc:postgresql://authentication-postgres:5432/postgres
+
+  ms-courier:
+    container_name: ms-courier
+    image: courier:0.0.1
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
+    build:
+      context: ms-courier
+      dockerfile: Dockerfile
+    depends_on:
+      - courier-postgres
+      - rabbitmq
+      - ms-authentication
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://courier-postgres:5432/postgres
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      MS-AUTH-VALIDATE: api-gateway:8080/auth/validate
+      MS-AUTH-SIGN-UP: api-gateway:8080/auth/sign-up
+      MS-DELIVERY-ORDER-BY-ID: api-gateway:8080/delivery/order/{orderId}
+      MS-DELIVERY-ORDER-BY-COURIER-NAME: api-gateway:8080/delivery/order/by-courierName/{courierName}
+      PG_PASSWORD: zeropass
+
+  ms-delivery:
+    container_name: ms-delivery
+    image: delivery:0.0.1
+    ports:
+      - "8083:8083"
+    restart: unless-stopped
+    build:
+      context: ms-delivery
+      dockerfile: Dockerfile
+    depends_on:
+      - delivery-postgres
+      - rabbitmq
+      - ms-authentication
+    environment:
+  #    DATASOURCE_URL: jdbc:postgresql://delivery-postgres:5432/postgres
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      MS-AUTH-VALIDATE: api-gateway:8080/auth/validate
+      PG_PASSWORD: zeropass
