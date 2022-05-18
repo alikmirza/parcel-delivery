@@ -62,7 +62,6 @@ services:
       - authentication-postgres
     environment:
       PG_PASSWORD: zeropass
-  #    DATASOURCE_URL: jdbc:postgresql://authentication-postgres:5432/postgres
 
   ms-courier:
     container_name: ms-courier
@@ -101,7 +100,6 @@ services:
       - rabbitmq
       - ms-authentication
     environment:
-  #    DATASOURCE_URL: jdbc:postgresql://delivery-postgres:5432/postgres
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       MS-AUTH-VALIDATE: api-gateway:8080/auth/validate
